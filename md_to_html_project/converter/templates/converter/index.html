@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to HTML Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/loader.min.js"></script>
+</head>
+<body>
+    <h1>Markdown to HTML Converter</h1>
+    <form action="{% url 'convert' %}" method="POST">
+        {% csrf_token %}
+        <div id="editor-container" style="width:800px;height:400px;border:1px solid grey"></div>
+        <textarea name="markdown" id="markdown" style="display:none;"></textarea>
+        <br>
+
+        <label for="output_option">Output option:</label>
+        <select name="output_option" id="output_option">
+            <option value="display">Display on page</option>
+            <option value="download">Download as HTML</option>
+        </select>
+        <br><br>
+        <button type="submit">Convert to HTML</button>
+    </form>
+
+    <div id="html-preview" style="border:1px solid grey; margin-top:20px; padding:10px;">
+        {% if html_content %}
+            {{ html_content|safe }}
+        {% endif %}
+    </div>
+
+    <script>
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            var editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: '{% if markdown_text %}{{ markdown_text }}{% endif %}',
+                language: 'markdown'
+            });
+
+            document.querySelector('form').onsubmit = function() {
+                var markdownContent = editor.getValue();
+                document.getElementById('markdown').value = markdownContent;
+            };
+        });
+    </script>
+</body>
+</html>
